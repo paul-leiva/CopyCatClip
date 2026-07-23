@@ -49,8 +49,11 @@ class MainWindow(QMainWindow):
         layout2 = QHBoxLayout(bottom_container)
 
         button_a = QPushButton("Button A")
+        button_a.clicked.connect(button_response)
         button_b = QPushButton("Button B")
+        button_b.clicked.connect(button_response)
         button_c = QPushButton("Button C")
+        button_c.clicked.connect(button_response)
         layout2.addWidget(button_a)
         layout2.addWidget(button_b)
         layout2.addWidget(button_c)
