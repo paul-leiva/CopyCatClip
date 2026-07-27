@@ -63,7 +63,7 @@ class MainWindow(QMainWindow):
         layout3 = QVBoxLayout()
 
         scrollable_buttons = []
-        for i in range(2):
+        for i in range(10):
             button = QPushButton(f"Button {i}")
             button.clicked.connect(button_response)
             layout3.addWidget(button)
