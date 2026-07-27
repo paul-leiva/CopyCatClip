@@ -1,6 +1,6 @@
 import pyperclip
 import PySide6
-from PySide6.QtWidgets import QApplication, QDialog, QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout
+from PySide6.QtWidgets import QApplication, QDialog, QLabel, QMainWindow, QPushButton, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout
 from PySide6.QtCore import Qt
 import sys
 
@@ -58,8 +58,27 @@ class MainWindow(QMainWindow):
         layout2.addWidget(button_b)
         layout2.addWidget(button_c)
 
+        scroll_area = QScrollArea()
+        scroll_widget = QWidget()
+        layout3 = QVBoxLayout()
+
+        scrollable_buttons = []
+        for i in range(2):
+            button = QPushButton(f"Button {i}")
+            button.clicked.connect(button_response)
+            layout3.addWidget(button)
+            scrollable_buttons.append(button)
+
+        scroll_widget.setLayout(layout3)
+
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(scroll_widget)
+
         container_layout.addWidget(top_container)
         container_layout.addWidget(bottom_container)
+        container_layout.addWidget(scroll_area)
         main_container.setLayout(container_layout)
 
 # Start the app
