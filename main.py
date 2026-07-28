@@ -24,6 +24,9 @@ stylesheet = (
     """
     )
 
+LOCK_ALL_BUTTON_TEXT = "Lock All"
+UNLOCK_ALL_BUTTON_TEXT = "Unlock All"
+
 def button_response():
     print("✅ button clicked! ✅")
 
@@ -40,12 +43,12 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(main_container)
 
         # Container to hold
-        container_layout = QHBoxLayout(main_container)
+        main_container_layout = QHBoxLayout(main_container)
 
         # Create a layout to determine positioning of items in container
         left_container = QWidget()
 
-        # Apply layout to parent container (left_container
+        # Set layout of container to vertical box layout
         left_layout = QVBoxLayout(left_container)
 
         # Create button to store the current prompt collection that is selected
@@ -80,27 +83,29 @@ class MainWindow(QMainWindow):
         add_collection_button.clicked.connect(button_response)
         left_layout.addWidget(add_collection_button)
 
-        scroll_area = QScrollArea()
-        scroll_widget = QWidget()
-        layout3 = QVBoxLayout()
+        # Create right-side container to hole lock/unlock buttons, and list of prompts
+        right_container = QWidget()
 
-        scrollable_buttons = []
-        for i in range(10):
-            button = QPushButton(f"Button {i}")
-            button.clicked.connect(button_response)
-            layout3.addWidget(button)
-            scrollable_buttons.append(button)
+        # Set layout of container to vertical box layout
+        right_layout = QVBoxLayout(right_container)
 
-        scroll_widget.setLayout(layout3)
+        # Create "Unlock All" and "Lock All" buttons
+        lock_all_button = QPushButton(LOCK_ALL_BUTTON_TEXT)
+        unlock_all_button = QPushButton(UNLOCK_ALL_BUTTON_TEXT)
 
-        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setWidget(scroll_widget)
+        # Create HBox layout to store buttons at top of container
+        lock_unlock_layout = QHBoxLayout()
+        lock_unlock_layout.addWidget(lock_all_button)
+        lock_unlock_layout.addWidget(unlock_all_button)
 
-        container_layout.addWidget(left_container)
-        container_layout.addWidget(scroll_area)
-        main_container.setLayout(container_layout)
+        # Create widget and add to right_container
+        lock_unlock_widget = QWidget()
+        lock_unlock_widget.setLayout(lock_unlock_layout)
+        right_layout.addWidget(lock_unlock_widget)
+
+        main_container_layout.addWidget(left_container)
+        main_container_layout.addWidget(right_container)
+        main_container.setLayout(main_container_layout)
 
 # Start the app
 app = QApplication(sys.argv)
