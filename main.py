@@ -12,6 +12,18 @@ print(sys.winver)
 # content = pyperclip.paste()
 # print("content: " + content)
 
+stylesheet = (
+    """
+    QMainWindow { 
+        border: 2px solid red; 
+    }
+    
+    QScrollArea { 
+        border: 2px solid blue; 
+    }
+    """
+    )
+
 def button_response():
     print("✅ button clicked! ✅")
 
@@ -24,39 +36,49 @@ class MainWindow(QMainWindow):
 
         # Create container to hold content (buttons, labels, text boxes, etc.)
         main_container = QWidget()
+        app.setStyleSheet(stylesheet)
         self.setCentralWidget(main_container)
 
-        container_layout = QVBoxLayout()
+        # Container to hold
+        container_layout = QHBoxLayout(main_container)
 
         # Create a layout to determine positioning of items in container
-        top_container = QWidget()
-        layout1 = QVBoxLayout(top_container)
+        left_container = QWidget()
 
-        # Create elements to store in layout/container (buttons, labels, text boxes, etc.)
-        label1 = QLabel("One")
-        label1.setAlignment(Qt.AlignCenter)
-        label2 = QLabel("Two")
-        label2.setAlignment(Qt.AlignCenter)
-        label3 = QLabel("Three")
-        label3.setAlignment(Qt.AlignCenter)
+        # Apply layout to parent container (left_container
+        left_layout = QVBoxLayout(left_container)
 
-        # Add elements to the layout
-        layout1.addWidget(label1)
-        layout1.addWidget(label2)
-        layout1.addWidget(label3)
+        # Create button to store the current prompt collection that is selected
+        selected_prompt_collection = QPushButton("Selected Prompt Collection")
+        left_layout.addWidget(selected_prompt_collection)
 
-        bottom_container = QWidget()
-        layout2 = QHBoxLayout(bottom_container)
+        prompt_collection_label = QLabel("Prompt Collections")
+        prompt_collection_label.setAlignment(Qt.AlignCenter)
+        left_layout.addWidget(prompt_collection_label)
 
-        button_a = QPushButton("Button A")
-        button_a.clicked.connect(button_response)
-        button_b = QPushButton("Button B")
-        button_b.clicked.connect(button_response)
-        button_c = QPushButton("Button C")
-        button_c.clicked.connect(button_response)
-        layout2.addWidget(button_a)
-        layout2.addWidget(button_b)
-        layout2.addWidget(button_c)
+        # Create scrollable panel of prompt collections
+        prompts_scroll_area = QScrollArea()
+        prompts_widget = QWidget()
+        prompts_layout = QVBoxLayout()
+        prompt_collection_buttons = []
+        for i in range(5):
+            pc_button = QPushButton(f"Prompts {i}")
+            pc_button.clicked.connect(button_response)
+            prompts_layout.addWidget(pc_button)
+            prompt_collection_buttons.append(pc_button)
+
+        prompts_widget.setLayout(prompts_layout)
+
+        prompts_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        prompts_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        prompts_scroll_area.setWidgetResizable(True)
+        prompts_scroll_area.setWidget(prompts_widget)
+        left_layout.addWidget(prompts_scroll_area)
+
+        # Button for Creating/Adding a new collection
+        add_collection_button = QPushButton("➕ Add New Collection")
+        add_collection_button.clicked.connect(button_response)
+        left_layout.addWidget(add_collection_button)
 
         scroll_area = QScrollArea()
         scroll_widget = QWidget()
@@ -76,8 +98,7 @@ class MainWindow(QMainWindow):
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(scroll_widget)
 
-        container_layout.addWidget(top_container)
-        container_layout.addWidget(bottom_container)
+        container_layout.addWidget(left_container)
         container_layout.addWidget(scroll_area)
         main_container.setLayout(container_layout)
 
