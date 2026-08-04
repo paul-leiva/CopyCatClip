@@ -1,16 +1,16 @@
 from PySide6.QtWidgets import QCheckBox, QPlainTextEdit, QPushButton
 
 
-DEFAULT_PROMPT = "CHANGE THIS TEXT TO THE DESIRED PROMPT."
+DEFAULT_PROMPT = ""
 PLACEHOLDER_TEXT = "Type the desired prompt here."
 COPY_STRING = "Copy"
 DELETE_STRING = "Delete"
 
 class Prompt:
-    def __init__(self):
+    def __init__(self, prompt_text=None):
         """
         Every Prompt has
-        (1) A string that is the text for the prompt 
+        (1) A string that is the text for the prompt -> self.prompt_text
         (2) A QPlainTextEdit object (a text box) to display the string
         (3) "Copy" button
         (4) "Delete" button
@@ -18,10 +18,22 @@ class Prompt:
         """
         print("🚀 creating prompt object")
 
-        # self.prompt_text = ""
-        self.prompt_text = DEFAULT_PROMPT
+        if prompt_text:
+            print("loading from memory")
+        else:
+            print("NOT loading from memory")
+
+        if prompt_text:
+            self.prompt_text = prompt_text
+        else:
+            self.prompt_text = DEFAULT_PROMPT
         self.prompt_text_box = QPlainTextEdit()
         self.prompt_text_box.setPlaceholderText(PLACEHOLDER_TEXT)
+
+        # Set the plain text in the text box if text is passed in
+        if prompt_text:
+            self.prompt_text_box.setPlainText(prompt_text)
+
         self.copy_button = QPushButton(COPY_STRING)
         self.delete_button = QPushButton(DELETE_STRING)
         self.lock_toggle = QCheckBox()
