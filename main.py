@@ -122,9 +122,9 @@ class MainWindow(QMainWindow):
         prompts_layout = QVBoxLayout()
         prompt_collection_buttons = []
 
-        for pc in prompt_collection_list:
+        for i, pc in enumerate(prompt_collection_list):
             pc_button = QPushButton(pc.title)
-            pc_button.clicked.connect(button_response)
+            pc_button.clicked.connect(lambda checked, val=pc_button: self.prompt_collection_button_clicked(val))
             prompts_layout.addWidget(pc_button)
             prompt_collection_buttons.append(pc_button)
 
@@ -172,6 +172,9 @@ class MainWindow(QMainWindow):
         main_container_layout.addWidget(left_container)
         main_container_layout.addWidget(right_container)
         main_container.setLayout(main_container_layout)
+
+    def prompt_collection_button_clicked(self, button):
+        print(f"📧📧 Prompt Collection button clicked:  {button.text()} 📧📧")
 
     def lock_all_prompts(self):
         print("🔒🔒🔒 All Prompts LOCKED 🔒🔒🔒")
