@@ -1,6 +1,6 @@
 import pyperclip
 import PySide6, sys
-from PySide6.QtWidgets import QApplication, QDialog, QLabel, QMainWindow, QPushButton, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout
+from PySide6.QtWidgets import QApplication, QDialog, QInputDialog, QLabel, QMainWindow, QMessageBox, QPushButton, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout
 from PySide6.QtCore import Qt
 from prompt_collection import PromptCollection
 from prompt import Prompt
@@ -30,6 +30,7 @@ stylesheet = (
 
 LOCK_ALL_BUTTON_TEXT = "Lock All"
 UNLOCK_ALL_BUTTON_TEXT = "Unlock All"
+ADD_PROMPT_COLLECTION_BUTTON_TEXT = "➕ Add New Prompt Collection"
 
 prompt_collection_list = [] # List to hold PromptCollections
 
@@ -119,16 +120,16 @@ class MainWindow(QMainWindow):
         # Create scrollable panel of prompt collections
         prompts_scroll_area = QScrollArea()
         prompts_widget = QWidget()
-        prompts_layout = QVBoxLayout()
-        prompt_collection_buttons = []
+        self.prompts_layout = QVBoxLayout()
+        self.prompt_collection_buttons = []
 
-        for i, pc in enumerate(prompt_collection_list):
+        for pc in prompt_collection_list:
             pc_button = QPushButton(pc.title)
             pc_button.clicked.connect(lambda checked, val=pc_button: self.prompt_collection_button_clicked(val))
-            prompts_layout.addWidget(pc_button)
-            prompt_collection_buttons.append(pc_button)
+            self.prompts_layout.addWidget(pc_button)
+            self.prompt_collection_buttons.append(pc_button)
 
-        prompts_widget.setLayout(prompts_layout)
+        prompts_widget.setLayout(self.prompts_layout)
 
         prompts_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         prompts_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -137,15 +138,15 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(prompts_scroll_area)
 
         # Button for Creating/Adding a new collection
-        add_collection_button = QPushButton("➕ Add New Collection")
-        add_collection_button.clicked.connect(button_response)
+        add_collection_button = QPushButton(ADD_PROMPT_COLLECTION_BUTTON_TEXT)
+        add_collection_button.clicked.connect(self.add_prompt_collection_button_clicked)
         left_layout.addWidget(add_collection_button)
 
         # Create right-side container to hole lock/unlock buttons, and list of prompts
         right_container = QWidget()
 
         # Set layout of container to vertical box layout
-        right_layout = QVBoxLayout(right_container)
+        self.right_layout = QVBoxLayout(right_container)
 
         # Create "Unlock All" and "Lock All" buttons
         lock_all_button = QPushButton(LOCK_ALL_BUTTON_TEXT)
@@ -161,10 +162,10 @@ class MainWindow(QMainWindow):
         # Create widget and add to right_container
         lock_unlock_widget = QWidget()
         lock_unlock_widget.setLayout(lock_unlock_layout)
-        right_layout.addWidget(lock_unlock_widget)
+        self.right_layout.addWidget(lock_unlock_widget)
 
         # By default, set the right layout to the prompts from the very first PromptCollection object in memory
-        right_layout.addWidget(self.selected_prompt_collection.scroll_area)
+        self.right_layout.addWidget(self.selected_prompt_collection.scroll_area)
 
         # Set maximum width of left_container
         left_container.setMaximumWidth(300)
@@ -175,6 +176,21 @@ class MainWindow(QMainWindow):
 
     def prompt_collection_button_clicked(self, button):
         print(f"📧📧 Prompt Collection button clicked:  {button.text()} 📧📧")
+        collection_title = button.text()
+
+        if self.selected_prompt_collection.title == collection_title:
+            print("Same Prompt Collection (button) already selected")
+            return
+
+        for i, pc in enumerate(prompt_collection_list):
+            if pc.title == collection_title:
+                print("now displaying " + str(i) + " | " + pc.title)
+                old_widget = self.selected_prompt_collection.scroll_area
+                self.right_layout.replaceWidget(old_widget, pc.scroll_area)
+                old_widget.setParent(None)
+                self.selected_prompt_collection = pc
+                self.selected_prompt_collection_button.setText(self.selected_prompt_collection.title)
+                break
 
     def lock_all_prompts(self):
         print("🔒🔒🔒 All Prompts LOCKED 🔒🔒🔒")
@@ -185,6 +201,33 @@ class MainWindow(QMainWindow):
     def add_prompt_button_clicked(self):
         print("✅✅ Add Prompt Button Clicked ✅✅")
         # self.selected_prompt_collection.add_prompt_to_collection()
+
+    def add_prompt_collection_button_clicked(self):
+        print("💥💥 Add New Prompt Collection button clicked 💥💥")
+        prompt_collection_titles = [pc.title for pc in prompt_collection_list]
+        print("prompt_collection_titles: " + str(prompt_collection_titles))
+        text, result = QInputDialog.getText(self, "Add New Prompt Collection",
+                    "Enter the name for the new Prompt Collection. DO NOT enter a name that is already in use!")
+        print("text: " + str(text))
+        print("result: " + str(result))
+        while (text == "" or text in prompt_collection_titles) and result == True:
+            QMessageBox.critical(None, "Name already in use!", "Name already in use. Please type a different name for the new Prompt Collection.")
+            text, result = QInputDialog.getText(self, "Add New Prompt Collection",
+            "Enter the name for the new Prompt Collection. DO NOT enter a name that is already in use!")
+            print("text: " + str(text))
+            print("result: " + str(result))
+
+        if result:
+            print("💯💯 text: " + str(text))
+            new_prompt_collection = PromptCollection(text)
+            print("new Prompt Collection: " + str(new_prompt_collection.title))
+            prompt_collection_list.append(new_prompt_collection)
+
+            # Update UI (list of Prompt Collection buttons and list of PromptCollection objects)
+            pc_button = QPushButton(new_prompt_collection.title)
+            pc_button.clicked.connect(lambda checked, val=pc_button: self.prompt_collection_button_clicked(val))
+            self.prompts_layout.addWidget(pc_button)
+            self.prompt_collection_buttons.append(pc_button)
 
 # Start the app
 app = QApplication(sys.argv)
