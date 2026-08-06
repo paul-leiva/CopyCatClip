@@ -14,6 +14,7 @@ class PromptCollection:
         (1) A title of the prompt collection
         (2) A list of Prompt objects
         (3) A button to add a prompt
+        (4) A button to access the PromptCollection
         
         The list of Prompt objects will NEVER be empty
         """
@@ -35,6 +36,8 @@ class PromptCollection:
             self.list_of_prompts = [Prompt(on_delete=self.delete_prompt_from_collection)]
         self.add_prompt_button = QPushButton(ADD_PROMPT_BUTTON_TEXT)
         self.add_prompt_button.clicked.connect(self.add_prompt_to_collection)
+
+        self.prompt_collection_button = QPushButton(self.title)
 
         # Form the widget/scroll area for the prompts
         self.scroll_area = QScrollArea()
