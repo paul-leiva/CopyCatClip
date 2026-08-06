@@ -1,9 +1,11 @@
 from prompt import Prompt
-from PySide6.QtWidgets import QHBoxLayout, QPushButton, QScrollArea, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QMessageBox, QPushButton, QScrollArea, QVBoxLayout, QWidget
 
 
 DEFAULT_COLLECTION_NAME = "PROMPT COLLECTION NAME"
 ADD_PROMPT_BUTTON_TEXT = "➕ Add Prompt"
+DELETE_PROMPT_ERROR_MESSAGE = ("Unable to delete Prompt. A minimum of 1 Prompt is required at all times. "
+                               "If you would like to delete all Prompts shown, delete the Prompt Collection.")
 
 class PromptCollection:
     def __init__(self, collection_title=None, collection_prompts=None):
@@ -23,11 +25,14 @@ class PromptCollection:
         else:
             self.title = DEFAULT_COLLECTION_NAME
         if collection_prompts:
-            self.list_of_prompts = []
+            ''' self.list_of_prompts = []
             for cp in collection_prompts:
-                self.list_of_prompts.append(Prompt(cp))
+                self.list_of_prompts.append(Prompt(cp))'''
+            self.list_of_prompts = [Prompt(cp, on_delete=self.delete_prompt_from_collection)
+                                    for cp in collection_prompts]
         else:
-            self.list_of_prompts = [Prompt()]
+            # self.list_of_prompts = [Prompt()]
+            self.list_of_prompts = [Prompt(on_delete=self.delete_prompt_from_collection)]
         self.add_prompt_button = QPushButton(ADD_PROMPT_BUTTON_TEXT)
         self.add_prompt_button.clicked.connect(self.add_prompt_to_collection)
 
@@ -45,7 +50,7 @@ class PromptCollection:
 
     def add_prompt_to_collection(self):
         print(f"✅ prompt added to collection ✅")
-        new_prompt = Prompt()
+        new_prompt = Prompt(on_delete=self.delete_prompt_from_collection)
         self.list_of_prompts.append(new_prompt)
 
         # Update the UI (layouts, scroll area for PromptCollection object)
@@ -55,8 +60,18 @@ class PromptCollection:
         self.vbox_layout.addWidget(self.add_prompt_button)
 
 
-    def delete_prompt_from_collection(self, prompt_to_delete: Prompt):
-        print(f"❌ prompt {prompt_to_delete.prompt_text} deleted from collection ❌")
+    def delete_prompt_from_collection(self, prompt_to_delete):
+        print(f"❌ prompt {"plainText"} deleted from collection ❌")
+        if self.vbox_layout.count() == 2:
+            QMessageBox.critical(None, "Only one Prompt left!", DELETE_PROMPT_ERROR_MESSAGE)
+            return
+
+        self.list_of_prompts.remove(prompt_to_delete)
+        widget = prompt_to_delete.container_widget
+        self.vbox_layout.removeWidget(widget)
+        widget.setParent(None)
+        widget.deleteLater()
+
 
     def delete_prompt_collection(self, prompt_collection_to_delete):
         # Only delete a PromptCollection if there is more than 1 PromptCollection that exists
@@ -76,6 +91,7 @@ class PromptCollection:
             single_prompt_layout.addWidget(x)
 
         single_prompt_widget.setLayout(single_prompt_layout)
+        prompt.container_widget = single_prompt_widget  # <-- Assign the wrapper
         return single_prompt_widget
 
     def make_scroll_area(self):

@@ -7,7 +7,7 @@ COPY_STRING = "Copy"
 DELETE_STRING = "Delete"
 
 class Prompt:
-    def __init__(self, prompt_text=None):
+    def __init__(self, prompt_text=None, on_delete=None):
         """
         Every Prompt has
         (1) A string that is the text for the prompt -> self.prompt_text
@@ -15,6 +15,8 @@ class Prompt:
         (3) "Copy" button
         (4) "Delete" button
         (5) Lock toggle
+        (6) A container widget
+        (7) on_delete action
         """
         print("🚀 creating prompt object")
 
@@ -38,6 +40,9 @@ class Prompt:
         self.delete_button = QPushButton(DELETE_STRING)
         self.lock_toggle = QCheckBox()
 
+        self.on_delete = on_delete
+        self.container_widget = None # Set later by PromptCollection
+
         # Connect buttons to functionality
         self.copy_button.clicked.connect(self.copy_prompt)
         self.delete_button.clicked.connect(self.delete_prompt)
@@ -48,15 +53,9 @@ class Prompt:
 
     def delete_prompt(self):
         print(f"📋❌ Prompt {self.prompt_text} delete button clicked ❌📋")
-        # Only delete a PromptCollection if there is more than 1 PromptCollection that exists
-        '''
-        if len(self.list_of_prompts) > 1:
-            self.list_of_prompts.remove(self.prompt_text)
-            print(f"❌ prompt {self.prompt_text} deleted from collection ❌")
-        else:
-            print("A minimum of 1 Prompt Collection is required at all times. To delete this Prompt Collection, "
-                  "add/create a new Prompt Collection.")
-        '''
+        if self.on_delete:
+            self.on_delete(self)
+
 
     def lock_unlock_prompt(self):
         """
@@ -66,5 +65,9 @@ class Prompt:
         """
         if self.lock_toggle.isChecked():
             print(f"🔒 Prompt '{self.prompt_text}' locked 🔒")
+            self.prompt_text_box.setReadOnly(True)
+            self.prompt_text_box.setBackgroundVisible(True)
         else:
             print(f"🔑 Prompt '{self.prompt_text}' unlocked 🔑")
+            self.prompt_text_box.setReadOnly(False)
+            self.prompt_text_box.setBackgroundVisible(False)
