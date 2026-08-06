@@ -31,6 +31,10 @@ stylesheet = (
 LOCK_ALL_BUTTON_TEXT = "Lock All"
 UNLOCK_ALL_BUTTON_TEXT = "Unlock All"
 ADD_PROMPT_COLLECTION_BUTTON_TEXT = "➕ Add New Prompt Collection"
+RENAME_PROMPT_COLLECTION_TEXT = " Rename Prompt Collection"
+RENAME_DETAIL_TEXT = "Enter the name for the new Prompt Collection. DO NOT enter a name that is already in use!"
+DELETE_PROMPT_COLLECTION_TEXT = "❌ Delete Prompt Collection"
+DELETE_DETAIL_TEXT = "Are you sure you want to delete the currently selected Prompt Collection?"
 SELECTED_PROMPT_COLLECTION_INDICATOR = "✅ "
 
 prompt_collection_list = [] # List to hold PromptCollections
@@ -162,15 +166,37 @@ class MainWindow(QMainWindow):
         unlock_all_button = QPushButton(UNLOCK_ALL_BUTTON_TEXT)
         unlock_all_button.clicked.connect(self.unlock_all_prompts)
 
-        # Create HBox layout to store buttons at top of container
-        lock_unlock_layout = QHBoxLayout()
+        # Create VBox layout to store "Lock All" and "Unlock All" buttons at top of container
+        lock_unlock_layout = QVBoxLayout()
         lock_unlock_layout.addWidget(lock_all_button)
         lock_unlock_layout.addWidget(unlock_all_button)
-
-        # Create widget and add to right_container
+        # Nest "Lock All" and "Unlock All" buttons in widget
         lock_unlock_widget = QWidget()
+
+        # Create "Rename Prompt Collection" and "Delete Prompt Collection" buttons
+        rename_prompt_collection_button = QPushButton(RENAME_PROMPT_COLLECTION_TEXT)
+        rename_prompt_collection_button.clicked.connect(self.rename_prompt_collection_button_clicked)
+        delete_prompt_collection_button = QPushButton(DELETE_PROMPT_COLLECTION_TEXT)
+        delete_prompt_collection_button.clicked.connect(self.delete_prompt_collection_button_clicked)
+
+        # Create VBox layout to store buttons to modify/delete buttons at top of container
+        rename_delete_layout = QVBoxLayout()
+        rename_delete_layout.addWidget(rename_prompt_collection_button)
+        rename_delete_layout.addWidget(delete_prompt_collection_button)
+        rename_delete_widget = QWidget()
+
+        # Create widgets and add to right_container
         lock_unlock_widget.setLayout(lock_unlock_layout)
-        self.right_layout.addWidget(lock_unlock_widget)
+        rename_delete_widget.setLayout(rename_delete_layout)
+
+        # Store the two widgets in a QHBoxLayout
+        top_button_layout = QHBoxLayout()
+        top_button_layout.addWidget(rename_delete_widget)
+        top_button_layout.addWidget(lock_unlock_widget)
+        top_button_widget = QWidget()
+        top_button_widget.setLayout(top_button_layout)
+
+        self.right_layout.addWidget(top_button_widget)
 
         # By default, set the right layout to the prompts from the very first PromptCollection object in memory
         self.right_layout.addWidget(prompt_collection_list[self.selected_index].scroll_area)
@@ -240,6 +266,76 @@ class MainWindow(QMainWindow):
                 lambda checked, val=prompt_collection_list[-1].prompt_collection_button: self.prompt_collection_button_clicked(val))
             self.prompts_layout.addWidget(prompt_collection_list[-1].prompt_collection_button)
             self.prompt_collection_buttons.append(prompt_collection_list[-1].prompt_collection_button)
+
+    def delete_prompt_collection_button_clicked(self):
+        print(DELETE_PROMPT_COLLECTION_TEXT)
+
+        if len(prompt_collection_list) < 2:
+            QMessageBox.critical(None, "Prompt Collection NOT Deleted",
+            "There must be at least 2 Prompt Collections to delete a Prompt Collection. Add another Prompt Collection to allow deletion.")
+            return
+
+        confirm_delete_window = QMessageBox()
+        confirm_delete_window.setWindowTitle(DELETE_PROMPT_COLLECTION_TEXT)
+        confirm_delete_window.setText(DELETE_DETAIL_TEXT + "\n\n(" + prompt_collection_list[self.selected_index].title + ")")
+        confirm_delete_window.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        result = confirm_delete_window.exec()
+
+        if result == QMessageBox.Yes:
+            print("Prompt Collection Deleted")
+
+        collection_to_delete = prompt_collection_list[self.selected_index]
+
+        # 1. Remove the collection's button from the left-side list
+        button_to_remove = collection_to_delete.prompt_collection_button
+        self.prompts_layout.removeWidget(button_to_remove)
+        button_to_remove.setParent(None)
+        button_to_remove.deleteLater()
+        self.prompt_collection_buttons.remove(button_to_remove)
+
+        # 2. Remove the collection's scroll area from the right side
+        self.right_layout.removeWidget(collection_to_delete.scroll_area)
+        collection_to_delete.scroll_area.setParent(None)
+
+        # 3. Remove the collection itself from the data list
+        prompt_collection_list.remove(collection_to_delete)
+
+        # 4. Pick a new selection (fall back to the first remaining collection)
+        self.selected_index = min(self.selected_index, len(prompt_collection_list) - 1)
+        new_selected = prompt_collection_list[self.selected_index]
+
+        self.old_button = new_selected.prompt_collection_button
+        new_selected.prompt_collection_button.setText(
+            SELECTED_PROMPT_COLLECTION_INDICATOR + new_selected.title
+        )
+        self.selected_prompt_collection_button.setText(
+            new_selected.prompt_collection_button.text()
+        )
+
+        # 5. Show the newly-selected collection's prompts
+        self.right_layout.addWidget(new_selected.scroll_area)
+
+
+    def rename_prompt_collection_button_clicked(self):
+        print(RENAME_PROMPT_COLLECTION_TEXT)
+        prompt_collection_titles = [pc.title for pc in prompt_collection_list]
+        new_title, result = QInputDialog.getText(self, RENAME_PROMPT_COLLECTION_TEXT, RENAME_DETAIL_TEXT)
+        while (new_title == "" or new_title in prompt_collection_titles) and result == True:
+            QMessageBox.critical(None, RENAME_PROMPT_COLLECTION_TEXT, "Name already in use. Please type a different name for the Prompt Collection.")
+            text, result = QInputDialog.getText(self, RENAME_PROMPT_COLLECTION_TEXT,
+            "Enter the name for the Prompt Collection. DO NOT enter a name that is already in use!")
+        print("new_title: " + str(new_title))
+        print("result: " + str(result))
+
+        if result:
+            prompt_collection_list[self.selected_index].title = new_title
+            prompt_collection_list[self.selected_index].prompt_collection_button.setText(
+                SELECTED_PROMPT_COLLECTION_INDICATOR + prompt_collection_list[self.selected_index].title
+            )
+            self.selected_prompt_collection_button.setText(
+                prompt_collection_list[self.selected_index].prompt_collection_button.text()
+            )
+
 
 # Start the app
 app = QApplication(sys.argv)
