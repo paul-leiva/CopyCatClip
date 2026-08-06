@@ -36,21 +36,7 @@ class PromptCollection:
         self.prompts_widget = QWidget()
         self.vbox_layout = QVBoxLayout()
 
-        for prompt in self.list_of_prompts:
-            single_prompt_widget = QWidget()
-            single_prompt_layout = QHBoxLayout()
-
-            for x in [prompt.prompt_text_box, prompt.copy_button,
-                      prompt.delete_button, prompt.lock_toggle]:
-                single_prompt_layout.addWidget(x)
-
-            single_prompt_widget.setLayout(single_prompt_layout)
-            self.vbox_layout.addWidget(single_prompt_widget)
-
-        self.vbox_layout.addWidget(self.add_prompt_button)
-        self.prompts_widget.setLayout(self.vbox_layout)
-        self.scroll_area.setWidget(self.prompts_widget)
-        self.scroll_area.setWidgetResizable(True)
+        self.make_scroll_area()
 
         print("prompt_collection: " + str(self))
 
@@ -59,7 +45,15 @@ class PromptCollection:
 
     def add_prompt_to_collection(self):
         print(f"✅ prompt added to collection ✅")
-        # self.list_of_prompts.append(Prompt())
+        new_prompt = Prompt()
+        self.list_of_prompts.append(new_prompt)
+
+        # Update the UI (layouts, scroll area for PromptCollection object)
+        self.vbox_layout.removeWidget(self.add_prompt_button)
+        new_widget = self.make_widget_for_single_prompt(new_prompt)
+        self.vbox_layout.addWidget(new_widget)
+        self.vbox_layout.addWidget(self.add_prompt_button)
+
 
     def delete_prompt_from_collection(self, prompt_to_delete: Prompt):
         print(f"❌ prompt {prompt_to_delete.prompt_text} deleted from collection ❌")
@@ -72,3 +66,24 @@ class PromptCollection:
         else:
             print("A minimum of 1 Prompt Collection is required at all times. To delete this Prompt Collection, "
                   "add/create a new Prompt Collection.")
+
+    def make_widget_for_single_prompt(self, prompt):
+        single_prompt_widget = QWidget()
+        single_prompt_layout = QHBoxLayout()
+
+        for x in [prompt.prompt_text_box, prompt.copy_button,
+                  prompt.delete_button, prompt.lock_toggle]:
+            single_prompt_layout.addWidget(x)
+
+        single_prompt_widget.setLayout(single_prompt_layout)
+        return single_prompt_widget
+
+    def make_scroll_area(self):
+        for prompt in self.list_of_prompts:
+            single_prompt_widget = self.make_widget_for_single_prompt(prompt)
+            self.vbox_layout.addWidget(single_prompt_widget)
+
+        self.vbox_layout.addWidget(self.add_prompt_button)
+        self.prompts_widget.setLayout(self.vbox_layout)
+        self.scroll_area.setWidget(self.prompts_widget)
+        self.scroll_area.setWidgetResizable(True)

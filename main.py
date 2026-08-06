@@ -118,8 +118,8 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(prompt_collection_label)
 
         # Create scrollable panel of prompt collections
-        prompts_scroll_area = QScrollArea()
-        prompts_widget = QWidget()
+        self.prompts_scroll_area = QScrollArea()
+        self.prompts_widget = QWidget()
         self.prompts_layout = QVBoxLayout()
         self.prompt_collection_buttons = []
 
@@ -129,13 +129,13 @@ class MainWindow(QMainWindow):
             self.prompts_layout.addWidget(pc_button)
             self.prompt_collection_buttons.append(pc_button)
 
-        prompts_widget.setLayout(self.prompts_layout)
+        self.prompts_widget.setLayout(self.prompts_layout)
 
-        prompts_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        prompts_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        prompts_scroll_area.setWidgetResizable(True)
-        prompts_scroll_area.setWidget(prompts_widget)
-        left_layout.addWidget(prompts_scroll_area)
+        self.prompts_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.prompts_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.prompts_scroll_area.setWidgetResizable(True)
+        self.prompts_scroll_area.setWidget(self.prompts_widget)
+        left_layout.addWidget(self.prompts_scroll_area)
 
         # Button for Creating/Adding a new collection
         add_collection_button = QPushButton(ADD_PROMPT_COLLECTION_BUTTON_TEXT)
@@ -197,10 +197,6 @@ class MainWindow(QMainWindow):
 
     def unlock_all_prompts(self):
         print("🔑🔑🔑 All Prompts UNLOCKED 🔑🔑🔑")
-
-    def add_prompt_button_clicked(self):
-        print("✅✅ Add Prompt Button Clicked ✅✅")
-        # self.selected_prompt_collection.add_prompt_to_collection()
 
     def add_prompt_collection_button_clicked(self):
         print("💥💥 Add New Prompt Collection button clicked 💥💥")
