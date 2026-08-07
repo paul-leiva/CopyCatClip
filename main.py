@@ -212,7 +212,7 @@ class MainWindow(QMainWindow):
         print(f"📧📧 Prompt Collection button clicked:  {button.text()} 📧📧")
         collection_title = button.text()
 
-        if prompt_collection_list[self.selected_index].title == collection_title:
+        if collection_title.startswith(SELECTED_PROMPT_COLLECTION_INDICATOR):
             print("Same Prompt Collection (button) already selected")
             return
 
