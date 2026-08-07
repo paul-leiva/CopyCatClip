@@ -1,3 +1,4 @@
+import pyperclip
 from PySide6.QtWidgets import QCheckBox, QPlainTextEdit, QPushButton
 
 
@@ -51,6 +52,7 @@ class Prompt:
 
     def copy_prompt(self):
         print(f"📋✅ Prompt {self.prompt_text} copied to clipboard. ✅📋")
+        pyperclip.copy(self.prompt_text_box.toPlainText())
 
     def delete_prompt(self):
         print(f"📋❌ Prompt {self.prompt_text} delete button clicked ❌📋")
