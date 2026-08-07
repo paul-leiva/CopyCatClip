@@ -1,3 +1,4 @@
+from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QApplication, QInputDialog, QLabel, QMainWindow, QMessageBox, QPushButton, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout
 from PySide6.QtCore import Qt
 from prompt_collection import PromptCollection
@@ -24,6 +25,7 @@ RENAME_PROMPT_COLLECTION_TEXT = "📝 Rename Prompt Collection"
 RENAME_DETAIL_TEXT = "Enter the name for the new Prompt Collection. DO NOT enter a name that is already in use!"
 DELETE_PROMPT_COLLECTION_TEXT = "❌ Delete Prompt Collection"
 DELETE_DETAIL_TEXT = "Are you sure you want to delete the currently selected Prompt Collection?"
+SAVE_AND_CLOSE_WARNING = "Are you sure you want to quit? All prompts will be saved upon quitting."
 SELECTED_PROMPT_COLLECTION_INDICATOR = "✅ "
 
 prompt_collection_list = [] # List to hold PromptCollections
@@ -309,6 +311,25 @@ class MainWindow(QMainWindow):
             self.selected_prompt_collection_button.setText(
                 prompt_collection_list[self.selected_index].prompt_collection_button.text()
             )
+
+    def closeEvent(self, event: QCloseEvent):
+        reply = QMessageBox.question(
+            self, "Quit?", SAVE_AND_CLOSE_WARNING,
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:
+            try:
+                with open("memory.txt", "w") as mem:
+                    for pc in prompt_collection_list:
+                        prompt_texts = [p.prompt_text_box.toPlainText() for p in pc.list_of_prompts]
+                        line = ", ".join([pc.title] + prompt_texts)
+                        mem.write(line + "\n")
+            except Exception as e:
+                print(f"⚠️ Failed to save: {e}")
+            print("Closing...")
+            event.accept()
+        else:
+            event.ignore()
 
 
 # Start the app
