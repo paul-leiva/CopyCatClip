@@ -15,15 +15,14 @@ print(sys.winver)
 
 stylesheet = (
     """
-    QMainWindow { 
-        border: 2px solid red; 
-    }
-    
-    QScrollArea { 
-        border: 2px solid blue; 
-    }
     QPlainTextEdit {
         border: 2px solid orange;
+    }
+    QPushButton[id="self.selected_prompt_collection_button"] {
+        border: 2px solid blue;
+    }
+    QScrollArea[class="scroll_area"] { 
+        border: 2px solid blue; 
     }
     """
     )
@@ -120,6 +119,7 @@ class MainWindow(QMainWindow):
         self.selected_prompt_collection_button = QPushButton(
             SELECTED_PROMPT_COLLECTION_INDICATOR + prompt_collection_list[self.selected_index].title
         )
+        self.selected_prompt_collection_button.setProperty("id", "self.selected_prompt_collection_button")
         left_layout.addWidget(self.selected_prompt_collection_button)
 
         prompt_collections_label = QLabel("Prompt Collections")

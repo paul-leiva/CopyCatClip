@@ -106,3 +106,4 @@ class PromptCollection:
         self.prompts_widget.setLayout(self.vbox_layout)
         self.scroll_area.setWidget(self.prompts_widget)
         self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setProperty("class", "scroll_area")
