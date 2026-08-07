@@ -1,17 +1,7 @@
-import pyperclip
-import PySide6, sys
-from PySide6.QtWidgets import QApplication, QDialog, QInputDialog, QLabel, QMainWindow, QMessageBox, QPushButton, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout
+from PySide6.QtWidgets import QApplication, QInputDialog, QLabel, QMainWindow, QMessageBox, QPushButton, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout
 from PySide6.QtCore import Qt
 from prompt_collection import PromptCollection
-from prompt import Prompt
-
-print("Hello world!")
-s = "pyperclip rocks!"
-print(PySide6.__version__)
-print(sys.winver)
-# pyperclip.copy(s)
-# content = pyperclip.paste()
-# print("content: " + content)
+import sys
 
 stylesheet = (
     """
@@ -40,26 +30,6 @@ prompt_collection_list = [] # List to hold PromptCollections
 
 def button_response():
     print("✅ button clicked! ✅")
-
-'''
-@staticmethod
-def add_prompt_button_clicked():
-    print("✅✅ Add Prompt Button Clicked ✅✅")
-    n = len(self.mock_prompt_list)
-    self.mock_prompt_list[n - 1].prompt_text = "Mock Prompt " + str(n - 1)
-    self.mock_prompt_list[n - 1].prompt_text_box.setPlainText(self.mock_prompt_list[n - 1].prompt_text)
-
-    single_prompt_widget = QWidget()
-    single_prompt_layout = QHBoxLayout()
-
-    for x in [self.mock_prompt_list[n - 1].prompt_text_box, self.mock_prompt_list[n - 1].copy_button,
-              self.mock_prompt_list[n - 1].delete_button, self.mock_prompt_list[n - 1].lock_toggle]:
-        single_prompt_layout.addWidget(x)
-
-    single_prompt_widget.setLayout(single_prompt_layout)
-    self.mock_vbox.addWidget(single_prompt_widget)
-'''
-
 
 class MainWindow(QMainWindow):
 
@@ -330,8 +300,6 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(None, RENAME_PROMPT_COLLECTION_TEXT, "Name already in use. Please type a different name for the Prompt Collection.")
             text, result = QInputDialog.getText(self, RENAME_PROMPT_COLLECTION_TEXT,
             "Enter the name for the Prompt Collection. DO NOT enter a name that is already in use!")
-        print("new_title: " + str(new_title))
-        print("result: " + str(result))
 
         if result:
             prompt_collection_list[self.selected_index].title = new_title

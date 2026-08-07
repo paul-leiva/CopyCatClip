@@ -26,9 +26,6 @@ class PromptCollection:
         else:
             self.title = DEFAULT_COLLECTION_NAME
         if collection_prompts:
-            ''' self.list_of_prompts = []
-            for cp in collection_prompts:
-                self.list_of_prompts.append(Prompt(cp))'''
             self.list_of_prompts = [Prompt(cp, on_delete=self.delete_prompt_from_collection)
                                     for cp in collection_prompts]
         else:
