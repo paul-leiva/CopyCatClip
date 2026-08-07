@@ -3,8 +3,8 @@ from PySide6.QtWidgets import QCheckBox, QPlainTextEdit, QPushButton
 
 DEFAULT_PROMPT = ""
 PLACEHOLDER_TEXT = "Type the desired prompt here."
-COPY_STRING = "Copy"
-DELETE_STRING = "Delete"
+COPY_STRING = "📋 Copy"
+DELETE_STRING = "❌ Delete"
 
 class Prompt:
     def __init__(self, prompt_text=None, on_delete=None):
@@ -31,6 +31,7 @@ class Prompt:
             self.prompt_text = DEFAULT_PROMPT
         self.prompt_text_box = QPlainTextEdit()
         self.prompt_text_box.setPlaceholderText(PLACEHOLDER_TEXT)
+        self.prompt_text_box.setFixedHeight(75)
 
         # Set the plain text in the text box if text is passed in
         if prompt_text:
@@ -66,8 +67,6 @@ class Prompt:
         if self.lock_toggle.isChecked():
             print(f"🔒 Prompt '{self.prompt_text}' locked 🔒")
             self.prompt_text_box.setReadOnly(True)
-            self.prompt_text_box.setBackgroundVisible(True)
         else:
             print(f"🔑 Prompt '{self.prompt_text}' unlocked 🔑")
             self.prompt_text_box.setReadOnly(False)
-            self.prompt_text_box.setBackgroundVisible(False)

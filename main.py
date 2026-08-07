@@ -22,16 +22,16 @@ stylesheet = (
     QScrollArea { 
         border: 2px solid blue; 
     }
-    QHBoxLayout {
-        border: 2px solid green;
+    QPlainTextEdit {
+        border: 2px solid orange;
     }
     """
     )
 
-LOCK_ALL_BUTTON_TEXT = "Lock All"
-UNLOCK_ALL_BUTTON_TEXT = "Unlock All"
+LOCK_ALL_BUTTON_TEXT = "🔒 Lock All"
+UNLOCK_ALL_BUTTON_TEXT = "🔑 Unlock All"
 ADD_PROMPT_COLLECTION_BUTTON_TEXT = "➕ Add New Prompt Collection"
-RENAME_PROMPT_COLLECTION_TEXT = " Rename Prompt Collection"
+RENAME_PROMPT_COLLECTION_TEXT = "📝 Rename Prompt Collection"
 RENAME_DETAIL_TEXT = "Enter the name for the new Prompt Collection. DO NOT enter a name that is already in use!"
 DELETE_PROMPT_COLLECTION_TEXT = "❌ Delete Prompt Collection"
 DELETE_DETAIL_TEXT = "Are you sure you want to delete the currently selected Prompt Collection?"
@@ -236,9 +236,15 @@ class MainWindow(QMainWindow):
 
     def lock_all_prompts(self):
         print("🔒🔒🔒 All Prompts LOCKED 🔒🔒🔒")
+        for prompt in prompt_collection_list[self.selected_index].list_of_prompts:
+            prompt.lock_toggle.setCheckState(Qt.CheckState.Checked)
+            prompt.prompt_text_box.setReadOnly(True)
 
     def unlock_all_prompts(self):
         print("🔑🔑🔑 All Prompts UNLOCKED 🔑🔑🔑")
+        for prompt in prompt_collection_list[self.selected_index].list_of_prompts:
+            prompt.lock_toggle.setCheckState(Qt.CheckState.Unchecked)
+            prompt.prompt_text_box.setReadOnly(False)
 
     def add_prompt_collection_button_clicked(self):
         print("💥💥 Add New Prompt Collection button clicked 💥💥")
