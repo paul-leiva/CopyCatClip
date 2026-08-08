@@ -1,7 +1,11 @@
+from clipboard_history import ClipboardHistory
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QApplication, QInputDialog, QLabel, QMainWindow, QMessageBox, QPushButton, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QObject, Signal
 from prompt_collection import PromptCollection
+import pyperclip
+import threading
+import time
 import sys
 
 stylesheet = (
@@ -18,6 +22,7 @@ stylesheet = (
     """
     )
 
+CLIPBOARD_HISTORY_BUTTON_TEXT = "📋 Clipboard History"
 LOCK_ALL_BUTTON_TEXT = "🔒 Lock All"
 UNLOCK_ALL_BUTTON_TEXT = "🔑 Unlock All"
 ADD_PROMPT_COLLECTION_BUTTON_TEXT = "➕ Add New Prompt Collection"
@@ -29,9 +34,23 @@ SAVE_AND_CLOSE_WARNING = "Are you sure you want to quit? All prompts will be sav
 SELECTED_PROMPT_COLLECTION_INDICATOR = "✅ "
 
 prompt_collection_list = [] # List to hold PromptCollections
+clipboard_contents = pyperclip.paste()
 
 def button_response():
     print("✅ button clicked! ✅")
+
+class ClipboardWatcher(QObject):
+    new_clip = Signal(str)
+
+    def run(self):
+        global clipboard_contents
+        print("Clipboard history thread running...")
+        while True:
+            current = pyperclip.paste()
+            if current != clipboard_contents:
+                clipboard_contents = current
+                self.new_clip.emit(current)   # just signals — no widget work here
+            time.sleep(2)
 
 class MainWindow(QMainWindow):
 
@@ -121,6 +140,13 @@ class MainWindow(QMainWindow):
         self.prompts_scroll_area.setWidget(self.prompts_widget)
         left_layout.addWidget(self.prompts_scroll_area)
 
+        # Create an object to store the Clipboard History
+        self.clipboard_history = ClipboardHistory(CLIPBOARD_HISTORY_BUTTON_TEXT, None)
+
+        # Button for accessing the Clipboard History (since the program began running)
+        left_layout.addWidget(self.clipboard_history.prompt_collection_button)
+        self.clipboard_history.prompt_collection_button.clicked.connect(self.clipboard_history_button_clicked)
+
         # Button for Creating/Adding a new PromptCollection
         add_collection_button = QPushButton(ADD_PROMPT_COLLECTION_BUTTON_TEXT)
         add_collection_button.clicked.connect(self.add_prompt_collection_button_clicked)
@@ -180,6 +206,13 @@ class MainWindow(QMainWindow):
         main_container_layout.addWidget(right_container)
         main_container.setLayout(main_container_layout)
 
+        # self.clipboard_history_thread = threading.Thread(target=self.clipboard_history_listener, daemon=True)
+        # self.clipboard_history_thread.start()
+        self.clipboard_watcher = ClipboardWatcher()
+        self.clipboard_watcher.new_clip.connect(self.add_clipboard_entry)  # queued automatically (cross-thread)
+        self.clipboard_history_thread = threading.Thread(target=self.clipboard_watcher.run, daemon=True)
+        self.clipboard_history_thread.start()
+
     def prompt_collection_button_clicked(self, button):
         print(f"📧📧 Prompt Collection button clicked:  {button.text()} 📧📧")
         collection_title = button.text()
@@ -188,12 +221,18 @@ class MainWindow(QMainWindow):
             print("Same Prompt Collection (button) already selected")
             return
 
-        self.old_button.setText(prompt_collection_list[self.selected_index].title)
+        if self.selected_index == -1:
+            self.clipboard_history.prompt_collection_button.setText(self.clipboard_history.title)
+        else:
+            self.old_button.setText(prompt_collection_list[self.selected_index].title)
 
         for i, pc in enumerate(prompt_collection_list):
             if prompt_collection_list[i].title == collection_title:
                 print("now displaying " + str(i) + " | " + pc.title)
-                old_widget = prompt_collection_list[self.selected_index].scroll_area
+                if self.selected_index == -1:
+                    old_widget = self.clipboard_history.scroll_area
+                else:
+                    old_widget = prompt_collection_list[self.selected_index].scroll_area
                 self.selected_index = i
                 self.right_layout.replaceWidget(old_widget, prompt_collection_list[self.selected_index].scroll_area)
                 old_widget.setParent(None)
@@ -312,12 +351,50 @@ class MainWindow(QMainWindow):
                 prompt_collection_list[self.selected_index].prompt_collection_button.text()
             )
 
+    def clipboard_history_button_clicked(self):
+        print(CLIPBOARD_HISTORY_BUTTON_TEXT + " button clicked.")
+        print("now displaying " + self.clipboard_history.title)
+        if self.selected_index == -1:
+            print("Clipboard History already selected")
+            return
+
+        self.old_button.setText(prompt_collection_list[self.selected_index].title)
+
+        old_widget = prompt_collection_list[self.selected_index].scroll_area
+        self.right_layout.replaceWidget(old_widget, self.clipboard_history.scroll_area)
+        old_widget.setParent(None)
+        self.clipboard_history.prompt_collection_button.setText(
+            SELECTED_PROMPT_COLLECTION_INDICATOR + self.clipboard_history.title
+        )
+        self.selected_prompt_collection_button.setText(
+            self.clipboard_history.prompt_collection_button.text()
+        )
+        self.old_button = self.clipboard_history.prompt_collection_button
+        self.selected_index = -1
+
+    def add_clipboard_entry(self, text):
+        new_widget = self.clipboard_history.make_widget_for_single_prompt(text)
+        self.clipboard_history.vbox_layout.insertWidget(0, new_widget)
+
+    def clipboard_history_listener(self):
+        global clipboard_contents
+        while True:
+            print("Clipboard history thread running...")
+            if pyperclip.paste() != clipboard_contents:
+                print("clipboard is now: " + pyperclip.paste())
+                clipboard_contents = pyperclip.paste()
+                new_widget = self.clipboard_history.make_widget_for_single_prompt(clipboard_contents)
+                self.clipboard_history.vbox_layout.insertWidget(0, new_widget)
+                print("Clipboard History count: " + str(self.clipboard_history.vbox_layout.count()))
+            time.sleep(2)
+
     def closeEvent(self, event: QCloseEvent):
         reply = QMessageBox.question(
             self, "Quit?", SAVE_AND_CLOSE_WARNING,
             QMessageBox.Yes | QMessageBox.No
         )
         if reply == QMessageBox.Yes:
+            self.clipboard_history_thread.join(timeout=1)
             try:
                 with open("memory.txt", "w") as mem:
                     for pc in prompt_collection_list:

@@ -25,7 +25,7 @@ class PromptCollection:
             self.title = collection_title
         else:
             self.title = DEFAULT_COLLECTION_NAME
-        if collection_prompts:
+        if collection_prompts is not None:
             self.list_of_prompts = [Prompt(cp, on_delete=self.delete_prompt_from_collection)
                                     for cp in collection_prompts]
         else:
