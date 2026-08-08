@@ -7,7 +7,6 @@ class ClipboardHistory(PromptCollection):
     def __init__(self, collection_title=None, collection_prompts=None):
         super().__init__(collection_title, collection_prompts=[])
         self.make_scroll_area()
-        print(f"Clipboard History: " + str(self.list_of_prompts))
 
     def make_widget_for_single_prompt(self, clipboard_text):
         # Make a Prompt from the clipboard_text
@@ -24,7 +23,6 @@ class ClipboardHistory(PromptCollection):
         return single_prompt_widget
 
     def make_scroll_area(self):
-        print("making scroll area for Clipboard History")
         self.prompts_widget.setLayout(self.vbox_layout)
         self.scroll_area.setWidget(self.prompts_widget)
         self.scroll_area.setWidgetResizable(True)

@@ -29,7 +29,6 @@ class PromptCollection:
             self.list_of_prompts = [Prompt(cp, on_delete=self.delete_prompt_from_collection)
                                     for cp in collection_prompts]
         else:
-            # self.list_of_prompts = [Prompt()]
             self.list_of_prompts = [Prompt(on_delete=self.delete_prompt_from_collection)]
         self.add_prompt_button = QPushButton(ADD_PROMPT_BUTTON_TEXT)
         self.add_prompt_button.clicked.connect(self.add_prompt_to_collection)
