@@ -69,7 +69,7 @@ class MainWindow(QMainWindow):
         for e in prompt_collection_list:
             print(e.title, end=" | ")
             for x in e.list_of_prompts:
-                print(x.prompt_text, end=", ")
+                print(x.prompt_text_box.toPlainText(), end=", ")
             print()
 
         # Create container to hold content (buttons, labels, text boxes, etc.)

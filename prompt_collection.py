@@ -46,7 +46,7 @@ class PromptCollection:
         print("prompt_collection: " + str(self))
 
         for p in self.list_of_prompts:
-            print("prompt_text: " + p.prompt_text)
+            print("prompt_text: " + p.prompt_text_box.toPlainText())
 
     def add_prompt_to_collection(self):
         print(f"✅ prompt added to collection ✅")
@@ -61,7 +61,6 @@ class PromptCollection:
 
 
     def delete_prompt_from_collection(self, prompt_to_delete):
-        print(f"❌ prompt {"plainText"} deleted from collection ❌")
         if self.vbox_layout.count() == 2:
             QMessageBox.critical(None, "Only one Prompt left!", DELETE_PROMPT_ERROR_MESSAGE)
             return
@@ -71,16 +70,7 @@ class PromptCollection:
         self.vbox_layout.removeWidget(widget)
         widget.setParent(None)
         widget.deleteLater()
-
-
-    def delete_prompt_collection(self, prompt_collection_to_delete):
-        # Only delete a PromptCollection if there is more than 1 PromptCollection that exists
-        if len(self.list_of_prompts) > 1:
-            self.list_of_prompts.remove(prompt_collection_to_delete)
-            print(f"❌ prompt {prompt_collection_to_delete.prompt_text} deleted from collection ❌")
-        else:
-            print("A minimum of 1 Prompt Collection is required at all times. To delete this Prompt Collection, "
-                  "add/create a new Prompt Collection.")
+        print(f"❌ prompt {prompt_to_delete.prompt_text_box.toPlainText()} deleted from collection ❌")
 
     def make_widget_for_single_prompt(self, prompt):
         single_prompt_widget = QWidget()

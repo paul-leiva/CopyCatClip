@@ -11,13 +11,12 @@ class Prompt:
     def __init__(self, prompt_text=None, on_delete=None):
         """
         Every Prompt has
-        (1) A string that is the text for the prompt -> self.prompt_text
-        (2) A QPlainTextEdit object (a text box) to display the string
-        (3) "Copy" button
-        (4) "Delete" button
-        (5) Lock toggle
-        (6) A container widget
-        (7) on_delete action
+        (1) A QPlainTextEdit object (a text box) to display the string
+        (2) "Copy" button
+        (3) "Delete" button
+        (4) Lock toggle
+        (5) A container widget
+        (6) on_delete action
         """
         print("🚀 creating prompt object")
 
@@ -26,10 +25,6 @@ class Prompt:
         else:
             print("NOT loading from memory")
 
-        if prompt_text:
-            self.prompt_text = prompt_text
-        else:
-            self.prompt_text = DEFAULT_PROMPT
         self.prompt_text_box = QPlainTextEdit()
         self.prompt_text_box.setPlaceholderText(PLACEHOLDER_TEXT)
         self.prompt_text_box.setFixedHeight(75)
@@ -51,11 +46,11 @@ class Prompt:
         self.lock_toggle.clicked.connect(self.lock_unlock_prompt)
 
     def copy_prompt(self):
-        print(f"📋✅ Prompt {self.prompt_text} copied to clipboard. ✅📋")
+        print(f"📋✅ Prompt {self.prompt_text_box.toPlainText()} copied to clipboard. ✅📋")
         pyperclip.copy(self.prompt_text_box.toPlainText())
 
     def delete_prompt(self):
-        print(f"📋❌ Prompt {self.prompt_text} delete button clicked ❌📋")
+        print(f"📋❌ Prompt {self.prompt_text_box.toPlainText()} delete button clicked ❌📋")
         if self.on_delete:
             self.on_delete(self)
 
@@ -67,8 +62,8 @@ class Prompt:
         :return:
         """
         if self.lock_toggle.isChecked():
-            print(f"🔒 Prompt '{self.prompt_text}' locked 🔒")
+            print(f"🔒 Prompt '{self.prompt_text_box.toPlainText()}' locked 🔒")
             self.prompt_text_box.setReadOnly(True)
         else:
-            print(f"🔑 Prompt '{self.prompt_text}' unlocked 🔑")
+            print(f"🔑 Prompt '{self.prompt_text_box.toPlainText()}' unlocked 🔑")
             self.prompt_text_box.setReadOnly(False)
