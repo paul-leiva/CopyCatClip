@@ -30,7 +30,7 @@ RENAME_PROMPT_COLLECTION_TEXT = "📝 Rename Prompt Collection"
 RENAME_DETAIL_TEXT = "Enter the name for the new Prompt Collection. DO NOT enter a name that is already in use!"
 DELETE_PROMPT_COLLECTION_TEXT = "❌ Delete Prompt Collection"
 DELETE_DETAIL_TEXT = "Are you sure you want to delete the currently selected Prompt Collection?"
-SAVE_AND_CLOSE_WARNING = "Are you sure you want to quit? All prompts will be saved upon quitting."
+SAVE_AND_CLOSE_WARNING = "Are you sure you want to quit? All prompts will be saved upon quitting and Clipboard History will be deleted."
 SELECTED_PROMPT_COLLECTION_INDICATOR = "✅ "
 
 prompt_collection_list = [] # List to hold PromptCollections
@@ -422,7 +422,6 @@ class MainWindow(QMainWindow):
                         mem.write(line + "\n")
             except Exception as e:
                 print(f"⚠️ Failed to save: {e}")
-            print("Closing...")
             event.accept()
         else:
             event.ignore()
