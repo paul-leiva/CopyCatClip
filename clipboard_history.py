@@ -15,6 +15,8 @@ class ClipboardHistory(PromptCollection):
         single_prompt_widget = QWidget()
         single_prompt_layout = QHBoxLayout()
 
+        prompt.prompt_text_box.setReadOnly(True)
+
         for x in [prompt.prompt_text_box, prompt.copy_button]:
             single_prompt_layout.addWidget(x)
 

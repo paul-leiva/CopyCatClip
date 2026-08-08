@@ -247,12 +247,21 @@ class MainWindow(QMainWindow):
 
     def lock_all_prompts(self):
         print("🔒🔒🔒 All Prompts LOCKED 🔒🔒🔒")
+        if self.selected_index == -1:
+            QMessageBox.critical(None, "Clipboard History already locked!",
+                                 "The Clipboard History's prompts are all locked by default.")
+            return
+
         for prompt in prompt_collection_list[self.selected_index].list_of_prompts:
             prompt.lock_toggle.setCheckState(Qt.CheckState.Checked)
             prompt.prompt_text_box.setReadOnly(True)
 
     def unlock_all_prompts(self):
         print("🔑🔑🔑 All Prompts UNLOCKED 🔑🔑🔑")
+        if self.selected_index == -1:
+            QMessageBox.critical(None, "Clipboard History cannot be unlocked!",
+                                 "The Clipboard History's prompts are all locked by default and cannot be unlocked.")
+
         for prompt in prompt_collection_list[self.selected_index].list_of_prompts:
             prompt.lock_toggle.setCheckState(Qt.CheckState.Unchecked)
             prompt.prompt_text_box.setReadOnly(False)
@@ -286,6 +295,11 @@ class MainWindow(QMainWindow):
 
     def delete_prompt_collection_button_clicked(self):
         print(DELETE_PROMPT_COLLECTION_TEXT)
+
+        if self.selected_index == -1:
+            QMessageBox.critical(None, "Prompt Collection NOT Deleted",
+                                 "The Clipboard History cannot be deleted.")
+            return
 
         if len(prompt_collection_list) < 2:
             QMessageBox.critical(None, "Prompt Collection NOT Deleted",
@@ -335,6 +349,11 @@ class MainWindow(QMainWindow):
 
     def rename_prompt_collection_button_clicked(self):
         print(RENAME_PROMPT_COLLECTION_TEXT)
+        if self.selected_index == -1:
+            QMessageBox.critical(None, "Unable to rename!",
+                                 "The Clipboard History cannot be renamed!")
+            return
+
         prompt_collection_titles = [pc.title for pc in prompt_collection_list]
         new_title, result = QInputDialog.getText(self, RENAME_PROMPT_COLLECTION_TEXT, RENAME_DETAIL_TEXT)
         while (new_title == "" or new_title in prompt_collection_titles) and result == True:
