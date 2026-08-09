@@ -313,36 +313,36 @@ class MainWindow(QMainWindow):
         if result == QMessageBox.Yes:
             print("Prompt Collection Deleted")
 
-        collection_to_delete = prompt_collection_list[self.selected_index]
+            collection_to_delete = prompt_collection_list[self.selected_index]
 
-        # 1. Remove the collection's button from the left-side list
-        button_to_remove = collection_to_delete.prompt_collection_button
-        self.prompts_layout.removeWidget(button_to_remove)
-        button_to_remove.setParent(None)
-        button_to_remove.deleteLater()
-        self.prompt_collection_buttons.remove(button_to_remove)
+            # 1. Remove the collection's button from the left-side list
+            button_to_remove = collection_to_delete.prompt_collection_button
+            self.prompts_layout.removeWidget(button_to_remove)
+            button_to_remove.setParent(None)
+            button_to_remove.deleteLater()
+            self.prompt_collection_buttons.remove(button_to_remove)
 
-        # 2. Remove the collection's scroll area from the right side
-        self.right_layout.removeWidget(collection_to_delete.scroll_area)
-        collection_to_delete.scroll_area.setParent(None)
+            # 2. Remove the collection's scroll area from the right side
+            self.right_layout.removeWidget(collection_to_delete.scroll_area)
+            collection_to_delete.scroll_area.setParent(None)
 
-        # 3. Remove the collection itself from the data list
-        prompt_collection_list.remove(collection_to_delete)
+            # 3. Remove the collection itself from the data list
+            prompt_collection_list.remove(collection_to_delete)
 
-        # 4. Pick a new selection (fall back to the first remaining collection)
-        self.selected_index = min(self.selected_index, len(prompt_collection_list) - 1)
-        new_selected = prompt_collection_list[self.selected_index]
+            # 4. Pick a new selection (fall back to the first remaining collection)
+            self.selected_index = min(self.selected_index, len(prompt_collection_list) - 1)
+            new_selected = prompt_collection_list[self.selected_index]
 
-        self.old_button = new_selected.prompt_collection_button
-        new_selected.prompt_collection_button.setText(
-            SELECTED_PROMPT_COLLECTION_INDICATOR + new_selected.title
-        )
-        self.selected_prompt_collection_button.setText(
-            new_selected.prompt_collection_button.text()
-        )
+            self.old_button = new_selected.prompt_collection_button
+            new_selected.prompt_collection_button.setText(
+                SELECTED_PROMPT_COLLECTION_INDICATOR + new_selected.title
+            )
+            self.selected_prompt_collection_button.setText(
+                new_selected.prompt_collection_button.text()
+            )
 
-        # 5. Show the newly-selected collection's prompts
-        self.right_layout.addWidget(new_selected.scroll_area)
+            # 5. Show the newly-selected collection's prompts
+            self.right_layout.addWidget(new_selected.scroll_area)
 
 
     def rename_prompt_collection_button_clicked(self):
