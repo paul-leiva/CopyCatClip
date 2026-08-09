@@ -22,6 +22,7 @@ class ClipboardHistory(PromptCollection):
 
         single_prompt_widget.setLayout(single_prompt_layout)
         prompt.container_widget = single_prompt_widget  # <-- Assign the wrapper
+        self.list_of_prompts.append(prompt)
         return single_prompt_widget
 
     def make_scroll_area(self):
