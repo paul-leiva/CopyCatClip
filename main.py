@@ -34,7 +34,8 @@ SAVE_AND_CLOSE_WARNING = "Are you sure you want to quit? All prompts will be sav
 SELECTED_PROMPT_COLLECTION_INDICATOR = "✅ "
 
 prompt_collection_list = [] # List to hold PromptCollections
-clipboard_contents = pyperclip.paste()
+clipboard_contents = ""
+pyperclip.copy(clipboard_contents)
 
 def button_response():
     print("✅ button clicked! ✅")
