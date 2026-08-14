@@ -1,3 +1,4 @@
+import ast
 from clipboard_history import ClipboardHistory
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QApplication, QInputDialog, QLabel, QMainWindow, QMessageBox, QPushButton, QScrollArea, QVBoxLayout, QWidget, QHBoxLayout
@@ -61,10 +62,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("CopyCatClip")
 
         # Form initial data to make PromptCollection objects from memory
-        with open("memory.txt") as mem:
+        with open("memory.txt", encoding="utf-8") as mem:
             for pc in mem:
                 print("Next Prompt Collection: " + pc)
-                data = pc.split(", ")
+                data = ast.literal_eval(pc)
 
                 # Use the initial String as the PromptCollection's title
                 prompt_collection_title = data[0]
@@ -402,11 +403,11 @@ class MainWindow(QMainWindow):
         if reply == QMessageBox.Yes:
             self.clipboard_history_thread.join(timeout=1)
             try:
-                with open("memory.txt", "w") as mem:
+                with open("memory.txt", "w", encoding="utf-8") as mem:
                     for pc in prompt_collection_list:
-                        prompt_texts = [p.prompt_text_box.toPlainText() for p in pc.list_of_prompts]
-                        line = ", ".join([pc.title] + prompt_texts)
-                        mem.write(line + "\n")
+                        line = [p.prompt_text_box.toPlainText() for p in pc.list_of_prompts]
+                        line.insert(0, pc.title)
+                        mem.write(str(line) + "\n")
             except Exception as e:
                 print(f"⚠️ Failed to save: {e}")
             event.accept()
